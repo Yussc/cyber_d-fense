@@ -2,7 +2,7 @@
 
 Ce dépôt contient l'infrastructure complète d'un lab de sécurité que j'ai conçu pour simuler un environnement d'entreprise réaliste. L'idée était de ne pas juste "installer des outils", mais de monter une vraie architecture réseau segmentée avec une gestion par conteneurs.
 
-## 🏗️ Ce qu'il y a sous le capot
+## 🏗️ Contenu
 Le lab s'appuie sur Docker Compose pour orchestrer 5 machines distinctes :
 * **ubuntu_router** : Le point d'entrée. Il gère tout le NAT et le filtrage via un script Iptables maison (Politique Drop par défaut).
 * **web_server** : Un serveur Apache durci, sous surveillance constante.
