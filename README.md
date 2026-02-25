@@ -22,9 +22,8 @@ Le projet est organisé de façon modulaire :
 * Les fichiers de config (`ossec.conf`, `rules`, `iptables`) sont montés en volumes pour être modifiables à la volée sans reconstruire les images.
 * Zéro installation manuelle requise : un `docker compose up --build` et le lab est prêt.
 
-## 📂 Arborescence
-.
-├── docker-compose.yaml
-├── router/             # Config Iptables & Dockerfile
-├── wazuh_manager/      # Règles personnalisées & config OSSEC
-└── web_server/         # Site web & Dockerfile
+## 🔩 Architecture
+
+<img width="791" height="753" alt="archi_cyberdef drawio" src="https://github.com/user-attachments/assets/356cb28d-93a3-473c-b9d0-c4d25f609c7b" />
+
+
