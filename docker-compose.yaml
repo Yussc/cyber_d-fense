@@ -1,0 +1,81 @@
+networks:
+  wan_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  lan_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+
+services:
+  # Ubuntu Routeur (Le SEUL qui a deux pattes)
+  ubuntu_router:
+    build: ./router
+    container_name: ubuntu_router
+    entrypoint: /bin/bash -c "/usr/local/bin/setup-iptables.sh && tail -f /dev/null"
+    networks:
+      wan_net:
+        ipv4_address: 172.20.0.2  # Patte côté attaquant
+      lan_net:
+        ipv4_address: 192.168.100.2 # Patte côté serveur
+    tty: true
+    stdin_open: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+  # Le serveur Web (Dans le LAN)
+  web_server:
+    build: ./web_server
+    container_name: web_server
+    networks:
+      lan_net:
+        ipv4_address: 192.168.100.10
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./web_server/index.html:/usr/local/apache2/htdocs/index.html
+
+  # Machine Attaquante (Dans le WAN)
+  kali_attaquante:
+    build: ./kali
+    container_name: kali_attaquante
+    networks:
+      wan_net:
+        ipv4_address: 172.20.0.40
+    tty: true
+    stdin_open: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+  # Snort (Dans le LAN pour surveiller le serveur)
+  snort_sensor:
+    build: ./snort
+    container_name: snort_sensor
+    networks:
+      lan_net:
+        ipv4_address: 192.168.100.20
+    tty: true
+    cap_add:
+      - NET_ADMIN
+
+  wazuh_manager:
+    image: wazuh/wazuh-manager:4.14.3
+    container_name: wazuh_manager
+    volumes:
+      - ./wazuh_manager/ossec.conf:/var/ossec/etc/ossec.conf
+      - ./wazuh_manager/local_rules.xml:/var/ossec/etc/rules/local_rules.xml
+    networks:
+      lan_net:
+        ipv4_address: 192.168.100.30
+    ports:
+      - "1514:1514/tcp"
+      - "1515:1515/tcp"
+    privileged: true
